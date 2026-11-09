@@ -21,12 +21,14 @@ class Settings(BaseSettings):
     APP_PORT: int = 8000
     DEBUG: bool = False
 
-    # Security
+    # Security & Owner Identity
     SECRET_KEY: str = Field(default="ai-office-insecure-dev-key-change-in-production-min32chars")
-    CEO_GATEWAY_DEFAULT_DENY: bool = True
-    CEO_APPROVAL_TOKEN_TTL_SECONDS: int = 1800
+    USER_GATEWAY_DEFAULT_DENY: bool = True
+    USER_APPROVAL_TOKEN_TTL_SECONDS: int = 1800
+    CEO_APPROVAL_TOKEN_TTL_SECONDS: int = 1800  # Backwards compatibility alias
     ENCRYPTION_KEY_32BYTES_BASE64: Optional[str] = None
-    CEO_API_KEY: str = Field(default="ceo-default-dev-token")
+    OWNER_API_KEY: str = Field(default="owner-default-dev-token")
+    CEO_API_KEY: str = Field(default="owner-default-dev-token")  # Backwards compatibility alias
 
     # Timezone
     TIMEZONE: str = "Africa/Algiers"

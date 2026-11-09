@@ -1,13 +1,14 @@
 # AI Office Organizational Charters & Governance
 
-This directory contains the operational charters for the AI Office multi-agent organization.
+This directory contains the operational charters for the AI Office organization.
 
 ```
-                         [ HUMAN CEO ]
+                  [ HUMAN OWNER / PRINCIPAL ]
                                │
-                       [ CEO GATEWAY ]
+                       [ USER GATEWAY ]
                                │
-                     [ AI MANAGER: NOVA ]
+                     [ AI CEO: NOVA PRIME ]
+                    (Executive Intelligence)
                                │
   ┌──────────┬──────────┬──────┴───┬──────────┬──────────┬──────────┐
   ▼          ▼          ▼          ▼          ▼          ▼          ▼
@@ -16,7 +17,7 @@ Research   Tech     Marketing   Finance   Operations  Creative   Strategy    HR
 
 ## Department Index
 
-1. [Central AI Manager (Nova Prime)](manager.md)
+1. [Central AI CEO (Nova Prime)](ai_ceo.md)
 2. [Research & Intelligence](research.md)
 3. [Technology & Engineering](technology.md)
 4. [Marketing & Communications](marketing.md)

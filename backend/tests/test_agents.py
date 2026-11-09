@@ -124,9 +124,9 @@ def test_agent_isolation():
         role="Ledger Checker",
         task_id="tsk-iso-1",
     )
-    # Specialist hierarchy cannot independently promote itself to MANAGER or CEO
+    # Specialist hierarchy cannot independently promote itself to MANAGER or AI_CEO
     assert spec.hierarchy_level != HierarchyLevel.MANAGER
-    assert spec.hierarchy_level != HierarchyLevel.CEO
+    assert spec.hierarchy_level != HierarchyLevel.AI_CEO
 
 
 # ---------------------------------------------------------
@@ -212,7 +212,7 @@ def test_agent_restart_recovery():
 async def test_executive_briefing_generation():
     briefing = await ai_manager.generate_executive_briefing()
     assert "# AI OFFICE EXECUTIVE BRIEFING" in briefing
-    assert "Nova Prime (AI Manager)" in briefing
+    assert "Nova Prime (AI CEO)" in briefing
     assert "Zero-Cost Invariant Verified" in briefing
 
     # Verify persisted in reports table

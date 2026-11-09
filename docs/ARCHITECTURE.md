@@ -2,89 +2,79 @@
 
 ## 1. Executive Summary
 
-AI Office is a localized, zero-cost, multi-agent enterprise framework orchestrated on Android ARM64 (under Termux / Ubuntu 24.04 PRoot) with an Android 16 Native Control Center (Kotlin 2.0 + Jetpack Compose) styled with Glassmorphism 2.0 aesthetics.
+AI Office is an autonomous, localized, zero-cost multi-agent organization designed to run in a lightweight footprint on Android 16 ARM64 + Termux / Ubuntu 24.04 PRoot.
 
-The system empowers a single human CEO to govern eight autonomous AI departments via a centralized AI Manager, subject to a cryptographically validated, default-deny human approval gateway for all external actions.
-
----
-
-## 2. System Topology
-
-```
-+-------------------------------------------------------------+
-|                     Human CEO (Mobile)                      |
-+-------------------------------------------------------------+
-                              |
-                     Biometric / UI Action
-                              v
-+-------------------------------------------------------------+
-|        Android 16 Native App (com.ghdinteractivestudio)      |
-|    - Kotlin 2.0 + Jetpack Compose + Material 3 Glass        |
-|    - Office Board, 8 Departments, Agent Profiles            |
-|    - Real-Time Approval Center                              |
-|    - SSE Client & Local Cache (DataStore / Memory)          |
-+-------------------------------------------------------------+
-                              |
-               REST API & SSE on 127.0.0.1:8000
-                              v
-+-------------------------------------------------------------+
-|               Python 3.12 FastAPI Core Engine               |
-|  +-------------------------------------------------------+  |
-|  |           CEO Approval Security Gateway               |  |
-|  |   - Default-Deny interceptor                          |  |
-|  |   - SHA-256 Payload Hash verification                 |  |
-|  |   - Nonce & TTL validation                            |  |
-|  |   - Audit Ledger (SQLite WAL)                         |  |
-|  +-------------------------------------------------------+  |
-|  |                Central AI Manager                     |  |
-|  |   - Task planning, delegation & conflict resolution   |  |
-|  |   - Executive briefings & board meeting generation    |  |
-|  +-------------------------------------------------------+  |
-|  |                 8 Department Directors                |  |
-|  |   Research | Tech | Marketing | Finance | Ops ...    |  |
-|  +-------------------------------------------------------+  |
-|  |               Dynamic Specialist Pool                 |  |
-|  |   Ephemeral worker agents created per task            |  |
-|  +-------------------------------------------------------+  |
-|  |       AI Provider Registry & Fallback Router          |  |
-|  |   Groq | Gemini | OpenRouter Free | Local Ollama/vLLM |  |
-|  +-------------------------------------------------------+  |
-|  |         Social Media Vault & Adapters (PKCE)          |  |
-|  |   TikTok API | Instagram Graph API | Facebook Pages   |  |
-|  +-------------------------------------------------------+  |
-|  |              SQLite WAL Persistence Layer             |  |
-+-------------------------------------------------------------+
-```
+### The Human User ↔ AI CEO Governance Relationship
+- **The Human Operating AI Office is NOT the CEO.**
+- The human is the **OWNER / PRINCIPAL / USER**.
+- The central autonomous executive intelligence running the company is the **AI CEO (Nova Prime)**.
+- The User communicates directly and exclusively with the **AI CEO**.
+- The **AI CEO** establishes strategy, directs 8 department directors, creates dynamic specialist agents, resolves task conflicts, and manages day-to-day operations.
+- For consequential external actions (social publishing, spending, messaging, connecting/disconnecting accounts), the AI CEO proposes the action, but **MANDATORY USER APPROVAL** is required before execution.
 
 ---
 
-## 3. Core Subsystems
+## 2. System Hierarchy & Topology
 
-### 3.1 CEO Approval Gateway
-- **Zero Self-Granting**: Agents cannot escalate privileges or approve their own actions.
-- **Payload Immutability**: Any alteration to proposed post captions, video links, or parameters between request time and execution time invalidates the approval token.
-- **Audit Ledger**: Every approval, rejection, and execution attempt is permanently recorded in SQLite.
+```
+                       [ HUMAN OWNER / PRINCIPAL ]
+                                    │
+                         Objectives & Guidance
+                                    ▼
+                         [ AI CEO: NOVA PRIME ]
+                       (Executive Intelligence)
+                                    │
+          ┌─────────────┬───────────┼───────────┬─────────────┐
+          ▼             ▼           ▼           ▼             ▼
+       Research    Technology   Marketing    Finance     Operations ...
+          │             │           │           │             │
+          └─────────────┴───────────┴───────────┴─────────────┘
+                                    │
+                               Proposals
+                                    ▼
+                     [ USER APPROVAL GATEWAY ]
+                                    │
+                          [ OWNER APPROVAL ]
+                                    │
+                            Secure Execution
+                       (TikTok / Meta Graph APIs)
+```
 
-### 3.2 Multi-Agent Hierarchy
-1. **CEO (Human)**: Executive authority, sets strategic directives, reviews briefings, approves/denies external actions.
-2. **AI Manager**: Translates directives into department tasks, schedules milestones, monitors agent workloads, manages escalations.
-3. **Department Directors (8)**:
-   - **Research**: Market scanning, competitor intelligence, scientific analysis.
-   - **Technology**: Code generation, system health, infrastructure monitoring.
-   - **Marketing**: Campaign planning, audience engagement, social strategy.
-   - **Finance**: Budget simulation, free-quota tracking, unit economic forecasts.
-   - **Operations**: Process optimization, workflow routing, scheduler verification.
-   - **Creative**: Visual asset prompts, copywriting, video storyboard creation.
-   - **Strategy**: Long-term roadmapping, organizational alignment, risk evaluation.
-   - **Human Resources**: Agent skill allocation, workload balancing, prompt optimization.
-4. **Dynamic Specialist Pool**: Ephemeral sub-agents created by directors for isolated tasks.
+### Communication Flow:
+$$\text{USER} \longrightarrow \text{AI CEO} \longrightarrow \text{DEPARTMENTS} \longrightarrow \text{AI CEO} \longrightarrow \text{USER}$$
 
-### 3.3 Zero-Cost AI Provider Engine
-- Automatically probes configured free tiers (e.g. Groq free rate limits, Google Gemini free tier, OpenRouter `:free` models, local OpenAI-compatible endpoints).
-- Employs an intelligent fallback router: if provider A encounters rate limiting (HTTP 429), the router seamlessly falls back to provider B while recording quota usage.
-- Never falls back to paid endpoints.
+---
 
-### 3.4 Storage & Reliability
-- SQLite configured with `PRAGMA journal_mode = WAL` and `PRAGMA synchronous = NORMAL`.
-- High concurrency for PRoot ARM64 with minimal memory footprint (< 150MB RSS for backend).
-- Seamless recovery from process terminations: agents persist in-flight task state in the database.
+## 3. Subsystems
+
+### 3.1 AI CEO (Executive Intelligence)
+- Proactive, strategic executive partner for the Human Owner.
+- Conversational interface: receives high-level user visions, formulates strategic plans, coordinates 8 departments, evaluates performance, and briefs the user.
+- Autonomous internal authority: assign tasks, reorder priorities, spawn specialist agents, schedule meetings, approve internal research and drafts without bothering the user for trivial operations.
+
+### 3.2 Human Owner Reserved Powers & User Approval Gateway
+- **Default-Deny External Boundary**:
+  - Content publication (TikTok, Facebook, Instagram)
+  - Outbound messaging & emails
+  - Any expenditure (strictly enforced $\$0.00$ zero-cost invariant)
+  - External account linking / unlinking
+  - Credential & sensitive settings updates
+- **Cryptographic Binding**: All approval grants are bound to SHA-256 canonical payload digests. Any alteration invalidates approval.
+- **Single-Use & TTL**: Execution tokens expire after 30 minutes and are strictly single-use.
+
+### 3.3 The 8 AI Departments (Led by Persistent Directors)
+1. **Research & Intelligence** (Dr. Aris Vance)
+2. **Technology & Engineering** (Marcus Sterling)
+3. **Marketing & Communications** (Elena Rostova)
+4. **Finance & Economic Guardrails** (Cassian Drake)
+5. **Operations & Workflow Logistics** (Tariq Benali)
+6. **Creative & Visual Studio** (Lyra Silvers)
+7. **Strategy & Growth Governance** (Kaelen Thorne)
+8. **Human Resources & Workforce Optimization** (Sora Tanaka)
+
+### 3.4 Dynamic Specialist Pool
+Temporary sub-agents spawned on demand for isolated tasks by directors and gracefully decommissioned upon task completion to preserve memory on Ubuntu PRoot ARM64.
+
+### 3.5 Storage & Telemetry
+- SQLite database configured with `PRAGMA journal_mode = WAL;`.
+- Server-Sent Events (SSE) stream on `127.0.0.1:8000` pushing real-time telemetry to the Android Control Center.

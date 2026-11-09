@@ -110,3 +110,26 @@ class ApprovalDecisionRequest(BaseModel):
 
 class ExecutionRequest(BaseModel):
     execution_token: Optional[str] = None
+
+
+class OwnerChatRequest(BaseModel):
+    message: str
+
+
+class OwnerChatResponse(BaseModel):
+    reply: str
+    decisions: List[str] = []
+    tasks_created: List[str] = []
+    timestamp: str
+
+
+class AICEOProfileResponse(BaseModel):
+    id: str
+    name: str
+    title: str
+    status: str
+    active_strategic_goals: List[str]
+    total_autonomous_decisions: int
+    departments_supervised: int
+    tokens_consumed: int
+    executive_health: str = "OPTIMAL"

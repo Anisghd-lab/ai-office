@@ -10,7 +10,7 @@ from app.providers.registry import provider_registry
 
 
 class HierarchyLevel(str, Enum):
-    CEO = "CEO"
+    AI_CEO = "AI_CEO"
     MANAGER = "MANAGER"
     DIRECTOR = "DIRECTOR"
     SPECIALIST = "SPECIALIST"

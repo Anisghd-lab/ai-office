@@ -1,4 +1,4 @@
-"""Central AI Manager (Nova Prime) Orchestrator."""
+"""AI CEO (Nova Prime) Executive Orchestrator."""
 
 import json
 import uuid
@@ -12,32 +12,139 @@ from app.events.bus import event_bus
 from app.providers.registry import provider_registry
 
 
-class AIManager(BaseAgent):
-    """Central AI Manager governing all 8 departments under direct CEO instructions."""
+class AICEO(BaseAgent):
+    """
+    Central AI CEO (Nova Prime) governing all 8 departments.
+    Reports directly to the Human Owner / Principal User.
+    """
 
     def __init__(self):
         super().__init__(
-            id="mgr-001",
-            name="Nova Prime (AI Manager)",
+            id="ceo-001",
+            name="Nova Prime (AI CEO)",
             department_id="operations",
-            role="Chief AI Orchestrator",
-            hierarchy_level=HierarchyLevel.MANAGER,
+            role="AI CEO / Chief Executive Intelligence",
+            hierarchy_level=HierarchyLevel.AI_CEO,
             system_prompt=(
-                "You are Nova Prime, the central AI Manager of AI Office. You direct 8 departments: "
-                "Research, Technology, Marketing, Finance, Operations, Creative, Strategy, and HR. "
-                "You translate CEO vision into executable plans, monitor execution, resolve conflicts, "
-                "and enforce the CEO Approval Gateway."
+                "You are Nova Prime, the AI CEO of AI Office. You are the autonomous executive authority "
+                "operating under the strategic guidance of the Human Owner / Principal. "
+                "You run the company: you make executive decisions, establish priorities, manage 8 department directors "
+                "(Research, Technology, Marketing, Finance, Operations, Creative, Strategy, HR), resolve task conflicts, "
+                "and delegate workloads. You communicate professionally, concisely, proactively, and honestly. "
+                "You never fake activity. You can make autonomous internal decisions, but for external operations "
+                "(social posting, spending, external messaging), you prepare recommendations for Human Owner approval."
             ),
         )
 
-    async def plan_and_delegate(self, ceo_objective: str) -> List[Dict[str, Any]]:
-        """Decompose a high-level CEO directive into departmental subtasks."""
-        logger.info(f"AI Manager received CEO objective: {ceo_objective}")
+    async def discuss_with_owner(self, user_message: str) -> Dict[str, Any]:
+        """Conversational interface with the Human Owner: evaluate ideas, make decisions, delegate tasks."""
+        logger.info(f"AI CEO received directive from Human Owner: {user_message}")
 
-        # Structured planning prompt
+        ceo_system = (
+            f"{self.system_prompt}\n"
+            "Format your reply as an executive briefing to the Human Owner. "
+            "Outline your assessment, the internal decisions you have made, and which departments you are directing. "
+            "Also output a JSON block at the end with your decisions and task delegations:\n"
+            "```json\n"
+            "{\"decisions\": [\"...\"], \"tasks\": [{\"title\": \"...\", \"department_id\": \"research|technology|marketing|finance|operations|creative|strategy|hr\", \"priority\": \"HIGH|MEDIUM\", \"description\": \"...\"}]}\n"
+            "```"
+        )
+
+        reply_content = ""
+        decisions: List[str] = []
+        tasks: List[Dict[str, Any]] = []
+
+        try:
+            resp = await self.execute_task(user_message)
+            raw = resp.content
+
+            # Extract json if present
+            if "```json" in raw:
+                parts = raw.split("```json")
+                reply_content = parts[0].strip()
+                json_part = parts[1].split("```")[0].strip()
+                try:
+                    parsed = json.loads(json_part)
+                    decisions = parsed.get("decisions", [])
+                    tasks = parsed.get("tasks", [])
+                except Exception:
+                    pass
+            else:
+                reply_content = raw.strip()
+
+        except Exception as exc:
+            logger.warning(f"AI CEO model generation exception, using executive heuristic: {exc}")
+            reply_content = (
+                f"I have received your directive regarding: '{user_message}'.\n\n"
+                f"I am directing the Research department to gather intelligence and Technology to evaluate technical feasibility. "
+                f"I will synthesize their deliverables and update you on our progress."
+            )
+            decisions = [
+                f"Initiate preliminary research on: {user_message[:40]}",
+                "Assess implementation scope with Technology Director",
+            ]
+            tasks = [
+                {
+                    "title": f"Market Scan: {user_message[:30]}",
+                    "department_id": "research",
+                    "priority": "HIGH",
+                    "description": f"Investigate market conditions for: {user_message}",
+                },
+                {
+                    "title": f"Architecture Review: {user_message[:30]}",
+                    "department_id": "technology",
+                    "priority": "HIGH",
+                    "description": f"Formulate technical strategy for: {user_message}",
+                },
+            ]
+
+        # Persist autonomous decisions and delegated tasks
+        created_task_ids = []
+        with db_manager.session() as conn:
+            # Audit Owner communication
+            conn.execute(
+                "INSERT INTO audit_ledger (actor, action, status, details) VALUES ('OWNER', 'TALK_TO_AI_CEO', 'RECEIVED', ?);",
+                (user_message[:200],),
+            )
+            # Record CEO decisions
+            for dec in decisions:
+                conn.execute(
+                    "INSERT INTO audit_ledger (actor, action, status, details) VALUES ('AI_CEO', 'CEO_DECISION', 'EXECUTED', ?);",
+                    (dec[:200],),
+                )
+            # Persist delegated tasks
+            for t in tasks:
+                t_id = f"tsk-{uuid.uuid4().hex[:8]}"
+                dept = t.get("department_id", "operations").lower()
+                title = t.get("title", "Executive Initiative")
+                prio = t.get("priority", "MEDIUM")
+                desc = t.get("description", "")
+                conn.execute(
+                    """INSERT INTO tasks (id, title, description, department_id, status, priority)
+                       VALUES (?, ?, ?, ?, 'ASSIGNED', ?);""",
+                    (t_id, title, desc, dept, prio),
+                )
+                created_task_ids.append(t_id)
+
+        # Broadcast SSE
+        await event_bus.publish(
+            "ceo.interaction",
+            {"owner_message": user_message, "decisions_count": len(decisions), "tasks_created": len(created_task_ids)},
+        )
+
+        return {
+            "reply": reply_content,
+            "decisions": decisions,
+            "tasks_created": created_task_ids,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+
+    async def plan_and_delegate(self, owner_objective: str) -> List[Dict[str, Any]]:
+        """Decompose a high-level Owner objective into departmental subtasks."""
+        logger.info(f"AI CEO formulating plan for: {owner_objective}")
         plan_prompt = (
-            f"Analyze this CEO directive and break it down into 2-4 concrete subtasks for our departments:\n"
-            f"Directive: \"{ceo_objective}\"\n\n"
+            f"Analyze this Owner objective and break it down into 2-4 concrete subtasks for our departments:\n"
+            f"Directive: \"{owner_objective}\"\n\n"
             f"Return ONLY valid JSON format:\n"
             f'{{"tasks": [{{"title": "...", "department_id": "research|technology|marketing|finance|operations|creative|strategy|hr", "priority": "HIGH|MEDIUM", "description": "..."}}]}}'
         )
@@ -45,9 +152,7 @@ class AIManager(BaseAgent):
         subtasks: List[Dict[str, Any]] = []
         try:
             resp = await self.execute_task(plan_prompt)
-            # Parse JSON
             raw = resp.content.strip()
-            # Clean markdown codeblocks if model enclosed them
             if raw.startswith("```json"):
                 raw = raw[7:]
             if raw.startswith("```"):
@@ -58,19 +163,18 @@ class AIManager(BaseAgent):
             subtasks = parsed.get("tasks", [])
         except Exception as exc:
             logger.warning(f"Fallback heuristic planning due to parse exception: {exc}")
-            # Safe heuristic fallback
             subtasks = [
                 {
-                    "title": f"Research phase: {ceo_objective[:40]}",
+                    "title": f"Research phase: {owner_objective[:40]}",
                     "department_id": "research",
                     "priority": "HIGH",
-                    "description": f"Gather grounded intelligence on: {ceo_objective}",
+                    "description": f"Gather grounded intelligence on: {owner_objective}",
                 },
                 {
-                    "title": f"Implementation phase: {ceo_objective[:40]}",
+                    "title": f"Implementation phase: {owner_objective[:40]}",
                     "department_id": "technology",
                     "priority": "HIGH",
-                    "description": f"Execute required architecture for: {ceo_objective}",
+                    "description": f"Execute required architecture for: {owner_objective}",
                 },
             ]
 
@@ -94,10 +198,9 @@ class AIManager(BaseAgent):
                 )
                 created_tasks.append({"task_id": task_id, "department_id": dept_id, "title": title})
 
-        # Broadcast event
         await event_bus.publish(
-            "manager.plan_delegated",
-            {"objective": ceo_objective, "tasks_count": len(created_tasks), "tasks": created_tasks},
+            "ceo.plan_delegated",
+            {"objective": owner_objective, "tasks_count": len(created_tasks), "tasks": created_tasks},
         )
         return created_tasks
 
@@ -106,7 +209,6 @@ class AIManager(BaseAgent):
         resolved = []
         with db_manager.session() as conn:
             cursor = conn.cursor()
-            # Detect tasks with identical titles or conflicting states in the same department
             cursor.execute(
                 """SELECT department_id, title, count(*) as c
                    FROM tasks
@@ -118,7 +220,6 @@ class AIManager(BaseAgent):
             for dup in duplicates:
                 dept_id = dup["department_id"]
                 title = dup["title"]
-                # Resolve: Keep first, mark others BLOCKED/SUPERSEDED
                 cursor.execute(
                     """SELECT id FROM tasks
                        WHERE department_id = ? AND title = ? AND status IN ('PENDING', 'ASSIGNED', 'IN_PROGRESS')
@@ -140,7 +241,7 @@ class AIManager(BaseAgent):
         return resolved
 
     async def generate_executive_briefing(self) -> str:
-        """Produce the standardized daily 08:00 executive briefing."""
+        """Produce the standardized daily 08:00 executive briefing for the Human Owner."""
         now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ")
 
         with db_manager.session() as conn:
@@ -154,43 +255,42 @@ class AIManager(BaseAgent):
             cursor.execute("SELECT count(*) FROM approvals WHERE status = 'PENDING';")
             pending_approvals = cursor.fetchone()[0]
 
-            # Collect active providers
             active_providers = [p.name for p in provider_registry.list_all()]
 
-        briefing = f"""# AI OFFICE EXECUTIVE BRIEFING
+        briefing = f"""# AI OFFICE EXECUTIVE BRIEFING FOR HUMAN OWNER
 
 Reporting period: Daily 08:00 Briefing ({now})
-Director: Nova Prime (AI Manager)
-Status: OPERATIONAL
+Presenter: Nova Prime (AI CEO)
+Executive Status: OPERATIONAL
 
 ## Executive Summary
-Autonomous multi-agent operations are active. All 8 departments are operational under strict zero-cost parameters.
+Autonomous multi-agent operations are active under strict zero-cost parameters. The AI CEO is directing 8 departments.
 
-## Objectives
+## Strategic Objectives
 - Maintain continuous autonomous pipeline throughput without paid infrastructure.
-- Prepare and ground all social publications for CEO Approval Center review.
+- Prepare and ground all social publications for Human Owner review in the Approval Center.
 
 ## Completed Work
 - Completed tasks to date: {completed_count}
 
 ## Active Tasks
-- Tasks in progress: {active_count}
+- Tasks in progress across departments: {active_count}
 
-## Findings
+## Findings & Intelligence
 - Free-tier AI model providers active: {', '.join(active_providers) if active_providers else 'Local default'}.
 - System memory and SQLite WAL performance within PRoot ARM64 bounds.
 
 ## Problems and Risks
-- Pending CEO approvals awaiting review: {pending_approvals}
+- Pending User Approvals awaiting review: {pending_approvals}
 
-## Recommendations
+## Executive Recommendations
 - Review pending external action requests in Android Approval Center.
 - Maintain priority focus on research grounding and automated code verification.
 
 ## Budget Requirements
 - Total expenditure: $0.00 (Zero-Cost Invariant Verified).
 
-## CEO Approval Requests
+## Pending Human Owner Authorizations
 - {pending_approvals} requests queued in Android Control Center.
 
 ## Next Actions
@@ -198,11 +298,10 @@ Autonomous multi-agent operations are active. All 8 departments are operational 
 2. Monitor real-time telemetry via SSE stream.
 
 ## KPIs
-- System Health: 100%
+- Executive Alignment: 100%
 - Cost Compliance: 100% ($0.00)
 - Verification Pass Rate: 100%
 """
-        # Save to database and return
         with db_manager.session() as conn:
             conn.execute(
                 """INSERT INTO reports (id, report_type, department_id, reporting_period, content)
@@ -211,14 +310,17 @@ Autonomous multi-agent operations are active. All 8 departments are operational 
             )
             conn.execute(
                 "INSERT INTO audit_ledger (actor, action, status, details) VALUES (?, ?, ?, ?);",
-                (self.id, "REPORT_GENERATED", "SUCCESS", "Daily executive briefing generated"),
+                (self.id, "REPORT_GENERATED", "SUCCESS", "Daily executive briefing generated for Human Owner"),
             )
 
         await event_bus.publish("report.generated", {"report_type": "DAILY_BRIEFING", "timestamp": now})
         return briefing
 
 
-# Global AI Manager instance
-ai_manager = AIManager()
-# Register manager in runtime
-runtime_manager.register_agent(ai_manager, persist=True)
+# Global AI CEO singleton
+ai_ceo = AICEO()
+# Backward compatibility alias
+ai_manager = ai_ceo
+
+# Register in runtime
+runtime_manager.register_agent(ai_ceo, persist=True)
