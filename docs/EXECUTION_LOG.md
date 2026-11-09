@@ -95,6 +95,53 @@ This document serves as the permanent, verifiable record of all engineering task
 - Provider registry and fallback router implemented.
 - Zero-cost constraint enforced.
 - All test gate requirements satisfied.
+**Git commit**: c7bd65a
+**GitHub push**: Pushed to origin/main (verified)
+**Status**: PUSHED
+
+---
+
+## Task 2.1
+**Name**: Build Backend Core Engine and SQLite WAL Persistence Layer
+**Objective**: Develop the central FastAPI backend architecture with SQLite WAL persistence, schema migrations, Pydantic validation, CEO API authentication, structured logging with secret redaction, and Server-Sent Events (SSE) telemetry.
+**Files created**:
+- `backend/app/config.py`
+- `backend/app/core/logging.py`
+- `backend/app/core/security.py`
+- `backend/app/database/connection.py`
+- `backend/app/database/migrations.py`
+- `backend/migrations/001_initial_schema.sql`
+- `backend/app/api/schemas.py`
+- `backend/app/api/health.py`
+- `backend/app/api/departments.py`
+- `backend/app/api/agents.py`
+- `backend/app/api/tasks.py`
+- `backend/app/api/governance.py`
+- `backend/app/api/events.py`
+- `backend/app/events/bus.py`
+- `backend/app/main.py`
+- `backend/run.py`
+- `backend/tests/test_database.py`
+- `backend/tests/test_backend_core.py`
+**Files modified**:
+- `backend/requirements.txt`
+- `docs/EXECUTION_LOG.md`
+**Implementation**:
+- Configured FastAPI with lifespan management, structured secret-redacting logger, and CORS.
+- Configured SQLite connection pool with `PRAGMA journal_mode = WAL`, `synchronous = NORMAL`, `busy_timeout = 5000`.
+- Built migration engine and initial schema seeding 8 departments (`research`, `technology`, `marketing`, `finance`, `operations`, `creative`, `strategy`, `hr`) and AI Manager (`Nova Prime`).
+- Built AES-256-GCM token encryption and canonical JSON SHA-256 hashing utilities.
+- Implemented REST routers for `/health`, `/metrics`, `/departments`, `/agents`, `/tasks`, `/governance`, and `/events/stream` (SSE).
+**Tests executed**:
+- Pytest suite: `backend/.venv/bin/pytest tests/ -v` (20 tests passed).
+- Database WAL pragma verification, migration idempotency, process restart recovery, WAL reader/writer concurrency, root/health endpoints, departments & agents API, task creation & retrieval, metrics endpoint, AES-256-GCM encryption vault, deterministic canonical hashing.
+**Test results**: All 20 tests PASSED (100% pass rate).
+**Security verification**: Verified that tokens are encrypted with AES-256-GCM, loopback default binding is enforced, and CEO actions are audited.
+**Acceptance criteria**:
+- FastAPI application operational.
+- SQLite WAL persistence and migrations verified.
+- Restart recovery and concurrency verified.
+- All 20 backend core tests passing.
 **Git commit**: Pending
 **GitHub push**: Pending
 **Status**: VERIFIED
