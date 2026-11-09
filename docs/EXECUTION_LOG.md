@@ -316,9 +316,9 @@ This document serves as the permanent, verifiable record of all engineering task
 **Acceptance criteria**:
 - `.github/workflows/ci.yml` created and validated.
 - Zero-cost runner constraints preserved.
-**Git commit**: Pending
-**GitHub push**: Pending
-**Status**: IN_PROGRESS
+**Git commit**: e8ff56f
+**GitHub push**: Pushed to origin/main (verified)
+**Status**: PUSHED
 
 ---
 
@@ -343,8 +343,8 @@ This document serves as the permanent, verifiable record of all engineering task
 - Android native APK assembled.
 - All scripts executable and verified.
 - All acceptance criteria across master mission satisfied.
-**Git commit**: Pending
-**GitHub push**: Pending
-**Status**: IN_PROGRESS
+**Git commit**: e8ff56f
+**GitHub push**: Pushed to origin/main (verified)
+**Status**: PUSHED
 
 
