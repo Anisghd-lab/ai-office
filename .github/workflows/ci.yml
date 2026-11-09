@@ -1,0 +1,69 @@
+name: AI Office CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-test:
+    name: Backend Pytest Suite & Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Backend Dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Execute Pytest Suite
+        working-directory: backend
+        env:
+          DATABASE_PATH: ":memory:"
+          SECRET_KEY: "ci-test-secret-key-32-chars-long!!"
+        run: |
+          pytest tests/ -v
+
+      - name: Secret Leak Prevention Scan
+        run: |
+          echo "Scanning codebase for hardcoded private keys or access tokens..."
+          ! git grep -E -I "BEGIN (RSA|OPENSSH|DSA|EC|PGP) PRIVATE KEY" -- . ':!backend/tests'
+          ! git grep -E -I "(sk-or-v1-[a-f0-9]{64}|AIzaSy[A-Za-z0-9_-]{33})" -- .
+
+  android-test:
+    name: Android Native Unit Tests & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Grant Execute Permission to Gradlew
+        run: chmod +x android/gradlew
+
+      - name: Execute Android Unit Tests
+        working-directory: android
+        run: ./gradlew testDebugUnitTest --no-daemon
