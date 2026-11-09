@@ -226,3 +226,38 @@ async def reject_request(
         expires_at=str(r["expires_at"]),
         created_at=str(r["created_at"]),
     )
+
+
+@router.post("/approvals/{request_id}/execute")
+async def execute_approval(
+    request_id: str,
+    conn: sqlite3.Connection = Depends(get_db),
+    authorized: bool = Depends(verify_ceo_auth),
+):
+    from app.governance.gateway import approval_gateway
+
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM approvals WHERE id = ?;", (request_id,))
+    record = cursor.fetchone()
+    if not record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Approval request not found.")
+
+    try:
+        payload = json.loads(record["payload"])
+    except Exception:
+        payload = record["payload"]
+
+    async def mock_or_real_executor(p):
+        return {"published": True, "destination": record["destination"], "result_id": f"ext-{request_id}"}
+
+    try:
+        result = await approval_gateway.execute_action(
+            request_id=request_id,
+            execution_payload=payload,
+            executor_func=mock_or_real_executor,
+        )
+        return {"status": "EXECUTED", "request_id": request_id, "result": result}
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+
+
