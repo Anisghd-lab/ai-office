@@ -38,9 +38,10 @@ class ProviderDiscovery:
         openrouter_key = os.getenv("OPENROUTER_API_KEY")
         if openrouter_key:
             free_models = [
-                ModelInfo(id="meta-llama/llama-3.2-3b-instruct:free", name="Llama 3.2 3B Instruct (Free)", is_free=True),
+                ModelInfo(id="meta-llama/llama-3.3-70b-instruct:free", name="Llama 3.3 70B Instruct (Free)", is_free=True),
+                ModelInfo(id="meta-llama/llama-3.1-8b-instruct:free", name="Llama 3.1 8B Instruct (Free)", is_free=True),
+                ModelInfo(id="deepseek/deepseek-r1:free", name="DeepSeek R1 (Free)", is_free=True),
                 ModelInfo(id="google/gemini-2.0-flash-exp:free", name="Gemini 2.0 Flash Exp (Free)", is_free=True),
-                ModelInfo(id="mistralai/mistral-7b-instruct:free", name="Mistral 7B Instruct (Free)", is_free=True),
                 ModelInfo(id="qwen/qwen-2.5-coder-32b-instruct:free", name="Qwen 2.5 Coder 32B (Free)", is_free=True),
             ]
             openrouter = OpenAICompatibleProvider(
@@ -48,7 +49,7 @@ class ProviderDiscovery:
                 base_url="https://openrouter.ai/api/v1",
                 api_key=openrouter_key,
                 free_models=free_models,
-                default_model="meta-llama/llama-3.2-3b-instruct:free",
+                default_model="meta-llama/llama-3.3-70b-instruct:free",
                 quota_tracker=self.quota_tracker,
             )
             self.quota_tracker.set_provider_limit("openrouter", rpm=20)
