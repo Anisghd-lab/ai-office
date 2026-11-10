@@ -130,4 +130,41 @@ class ApiClient(
             json.decodeFromString<Map<String, SocialAccountStatus>>(body)
         }
     }
+
+    suspend fun getDecisions(): List<CeoDecisionItem> = withContext(Dispatchers.IO) {
+        val req = requestBuilder("/ceo/decisions").get().build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) return@use emptyList()
+            val body = resp.body?.string() ?: "[]"
+            json.decodeFromString<List<CeoDecisionItem>>(body)
+        }
+    }
+
+    suspend fun getReports(): List<ReportItem> = withContext(Dispatchers.IO) {
+        val req = requestBuilder("/ceo/reports").get().build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) return@use emptyList()
+            val body = resp.body?.string() ?: "[]"
+            json.decodeFromString<List<ReportItem>>(body)
+        }
+    }
+
+    suspend fun getMemory(): List<KnowledgeItem> = withContext(Dispatchers.IO) {
+        val req = requestBuilder("/ceo/memory").get().build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) return@use emptyList()
+            val body = resp.body?.string() ?: "[]"
+            json.decodeFromString<List<KnowledgeItem>>(body)
+        }
+    }
+
+    suspend fun getCalendar(): List<CalendarEventItem> = withContext(Dispatchers.IO) {
+        val req = requestBuilder("/ceo/calendar").get().build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) return@use emptyList()
+            val body = resp.body?.string() ?: "[]"
+            json.decodeFromString<List<CalendarEventItem>>(body)
+        }
+    }
 }
+

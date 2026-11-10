@@ -58,11 +58,29 @@ EXTERNAL_ACTION_TYPES = {
 }
 
 
+AUTHORIZED_HUMAN_APPROVERS = {"OWNER", "PRINCIPAL", "USER", "CEO"}
+FORBIDDEN_AGENT_IDENTIFIERS = {"AI_CEO", "NOVA PRIME", "CEO-001"}
+
+
 class ApprovalGateway:
     """Default-deny external action governance gateway."""
 
     def __init__(self, ttl_seconds: Optional[int] = None):
         self.ttl_seconds = ttl_seconds or settings.CEO_APPROVAL_TOKEN_TTL_SECONDS
+
+    def _validate_approver_identity(self, actor: str) -> None:
+        """Validate that only the Human Owner/Principal can authorize external actions.
+        Agents, including AI CEO Nova Prime and department directors, cannot self-approve.
+        """
+        actor_clean = actor.strip().upper()
+        if (
+            actor_clean in FORBIDDEN_AGENT_IDENTIFIERS
+            or actor.lower().startswith(("dir-", "spec-", "agt-", "ceo-"))
+            or actor_clean not in AUTHORIZED_HUMAN_APPROVERS
+        ):
+            raise AgentSelfApprovalForbiddenError(
+                f"Actor '{actor}' is not authorized to approve gateway requests. Only Human Owner / Principal may approve. Only CEO may approve."
+            )
 
     def propose_action(
         self,
@@ -150,12 +168,9 @@ class ApprovalGateway:
 
         return request_id
 
-    def approve_action(self, request_id: str, comment: Optional[str] = None, actor: str = "CEO") -> None:
-        """Authorize an action. Only the human CEO can authorize."""
-        if actor != "CEO":
-            raise AgentSelfApprovalForbiddenError(
-                f"Actor '{actor}' is not authorized to approve gateway requests. Only CEO may approve."
-            )
+    def approve_action(self, request_id: str, comment: Optional[str] = None, actor: str = "OWNER") -> None:
+        """Authorize an action. Only the Human Owner/Principal can authorize."""
+        self._validate_approver_identity(actor)
 
         now = datetime.now(timezone.utc)
         with db_manager.session() as conn:
@@ -192,8 +207,9 @@ class ApprovalGateway:
 
         logger.info(f"CEO Approval granted for {request_id}")
 
-    def reject_action(self, request_id: str, reason: str, actor: str = "CEO") -> None:
-        """Reject an action."""
+    def reject_action(self, request_id: str, reason: str, actor: str = "OWNER") -> None:
+        """Reject an action. Only the Human Owner/Principal can reject."""
+        self._validate_approver_identity(actor)
         with db_manager.session() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM approvals WHERE id = ?;", (request_id,))
@@ -248,10 +264,7 @@ class ApprovalGateway:
             )
 
         # Invariant 2 & 3: Agent cannot self-approve / manager cannot bypass
-        if record["decided_by"] != "CEO":
-            raise AgentSelfApprovalForbiddenError(
-                f"Approval was signed by non-CEO actor '{record['decided_by']}'. Execution aborted."
-            )
+        self._validate_approver_identity(record["decided_by"])
 
         # Invariant 7: Expired approval cannot execute
         expires_at = datetime.fromisoformat(record["expires_at"].replace("Z", "+00:00"))

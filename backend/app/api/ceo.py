@@ -7,7 +7,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.agents.manager import ai_ceo
 from app.core.security import verify_owner_auth
 from app.database.connection import get_db
-from app.api.schemas import AICEOProfileResponse, OwnerChatRequest, OwnerChatResponse
+from app.api.schemas import (
+    AICEOProfileResponse,
+    CalendarEventResponse,
+    CeoDecisionResponse,
+    KnowledgeItemResponse,
+    OwnerChatRequest,
+    OwnerChatResponse,
+    ReportResponse,
+)
 
 router = APIRouter(prefix="/ceo", tags=["AI CEO Executive Authority"])
 
@@ -99,3 +107,90 @@ def get_ceo_strategy():
             "Q2: Advanced automated competitor benchmarking and real-time trend ingestion",
         ],
     }
+
+
+@router.get("/reports", response_model=List[ReportResponse])
+def list_reports(conn: sqlite3.Connection = Depends(get_db)):
+    """Retrieve executive reports, daily briefings, and weekly board minutes."""
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id, report_type, department_id, reporting_period, content, created_at FROM reports ORDER BY created_at DESC LIMIT 50;"
+    )
+    rows = cursor.fetchall()
+    return [
+        ReportResponse(
+            id=r["id"],
+            report_type=r["report_type"],
+            department_id=r["department_id"],
+            reporting_period=r["reporting_period"],
+            content=r["content"],
+            created_at=str(r["created_at"]),
+        )
+        for r in rows
+    ]
+
+
+@router.get("/memory", response_model=List[KnowledgeItemResponse])
+def list_memory(conn: sqlite3.Connection = Depends(get_db)):
+    """Retrieve curated corporate intelligence, verified research, and organizational memory."""
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id, title, category, content, provenance, created_at FROM knowledge_items ORDER BY created_at DESC LIMIT 50;"
+    )
+    rows = cursor.fetchall()
+    return [
+        KnowledgeItemResponse(
+            id=r["id"],
+            title=r["title"],
+            category=r["category"],
+            content=r["content"],
+            provenance=r["provenance"] or "system",
+            created_at=str(r["created_at"]),
+        )
+        for r in rows
+    ]
+
+
+@router.get("/calendar", response_model=List[CalendarEventResponse])
+def get_office_calendar(conn: sqlite3.Connection = Depends(get_db)):
+    """Retrieve automated executive cadence schedule and meetings (Africa/Algiers timezone)."""
+    events = [
+        CalendarEventResponse(
+            id="cad-daily-brief",
+            title="Daily Executive Briefing",
+            schedule_time="Every Day at 08:00 (Africa/Algiers)",
+            description="AI CEO Nova Prime consolidates 24h operational telemetry and prepares executive briefing for Human Owner.",
+            status="ACTIVE_RECURRING",
+        ),
+        CalendarEventResponse(
+            id="cad-sunday-board",
+            title="Sunday Executive Board Meeting",
+            schedule_time="Every Sunday at 10:00 (Africa/Algiers)",
+            description="All 8 Department Directors submit weekly throughput and strategic recommendations for consolidation.",
+            status="ACTIVE_RECURRING",
+        ),
+        CalendarEventResponse(
+            id="cad-library-hour",
+            title="Weekly Knowledge Library Hour",
+            schedule_time="Every Wednesday at 15:00 (Africa/Algiers)",
+            description="Research Department curates and grounds new models, API quotas, and intelligence into organizational memory.",
+            status="ACTIVE_RECURRING",
+        ),
+    ]
+
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, meeting_type, scheduled_at, status FROM executive_meetings ORDER BY scheduled_at DESC LIMIT 10;")
+    rows = cursor.fetchall()
+    for r in rows:
+        events.append(
+            CalendarEventResponse(
+                id=r["id"],
+                title=f"Executive Meeting: {r['meeting_type']}",
+                schedule_time=str(r["scheduled_at"]),
+                description=f"Status: {r['status']} • Concluded with all directors present.",
+                status=r["status"],
+            )
+        )
+
+    return events
+

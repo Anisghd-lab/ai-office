@@ -14,12 +14,14 @@ from app.governance.gateway import (
     UnauthorizedExecutionError,
 )
 from app.providers.base import PaidEndpointForbiddenError
+from app.departments.registry import initialize_directors
 
 
 @pytest.fixture(autouse=True)
 def setup_gateway_db():
     with db_manager.session() as conn:
         migration_manager.run_migrations(conn)
+    initialize_directors()
 
 
 # ---------------------------------------------------------
@@ -187,6 +189,17 @@ def test_agent_self_approval_prevented():
     # Central AI Manager attempts to approve
     with pytest.raises(AgentSelfApprovalForbiddenError):
         gw.approve_action(req_id, comment="Manager override", actor="mgr-001")
+
+    # AI CEO Nova Prime attempts to approve its own external action
+    with pytest.raises(AgentSelfApprovalForbiddenError):
+        gw.approve_action(req_id, comment="AI CEO self-override", actor="ceo-001")
+
+    with pytest.raises(AgentSelfApprovalForbiddenError):
+        gw.approve_action(req_id, comment="AI CEO title override", actor="AI_CEO")
+
+    # Human Owner approves
+    gw.approve_action(req_id, comment="Human Owner Authorized", actor="OWNER")
+
 
 
 # ---------------------------------------------------------

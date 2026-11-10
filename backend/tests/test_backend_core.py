@@ -103,3 +103,36 @@ def test_encryption_vault_and_payload_hashing():
     payload_a = {"title": "Post", "tags": [1, 2], "active": True}
     payload_b = {"active": True, "tags": [1, 2], "title": "Post"}
     assert canonical_json_hash(payload_a) == canonical_json_hash(payload_b)
+
+
+@pytest.mark.asyncio
+async def test_ceo_reports_memory_and_calendar_endpoints():
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        # Decisions endpoint
+        resp_decisions = await client.get("/api/v1/ceo/decisions")
+        assert resp_decisions.status_code == 200
+        assert isinstance(resp_decisions.json(), list)
+
+        # Strategy endpoint
+        resp_strategy = await client.get("/api/v1/ceo/strategy")
+        assert resp_strategy.status_code == 200
+        assert "strategic_pillars" in resp_strategy.json()
+
+        # Reports endpoint
+        resp_reports = await client.get("/api/v1/ceo/reports")
+        assert resp_reports.status_code == 200
+        assert isinstance(resp_reports.json(), list)
+
+        # Memory endpoint
+        resp_memory = await client.get("/api/v1/ceo/memory")
+        assert resp_memory.status_code == 200
+        assert isinstance(resp_memory.json(), list)
+
+        # Calendar endpoint
+        resp_calendar = await client.get("/api/v1/ceo/calendar")
+        assert resp_calendar.status_code == 200
+        events = resp_calendar.json()
+        assert len(events) >= 3
+        assert any("Daily Executive Briefing" in e["title"] for e in events)
+

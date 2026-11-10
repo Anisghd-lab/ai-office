@@ -82,4 +82,63 @@ class OfficeModelsTest {
         assertTrue(routes.contains("office_calendar"))
         assertTrue(routes.contains("organizational_memory"))
     }
+
+    @Test
+    fun testReportAndKnowledgeSerialization() {
+        val reportJson = """
+            {
+                "id": "rep-001",
+                "report_type": "DAILY_BRIEFING",
+                "department_id": "operations",
+                "reporting_period": "2026-11-10",
+                "content": "All departments active",
+                "created_at": "2026-11-10T08:00:00Z"
+            }
+        """.trimIndent()
+        val report = json.decodeFromString<ReportItem>(reportJson)
+        assertEquals("rep-001", report.id)
+        assertEquals("DAILY_BRIEFING", report.reportType)
+
+        val memoryJson = """
+            {
+                "id": "mem-001",
+                "title": "Commercial Zero-Cost Invariant",
+                "category": "finance",
+                "content": "Zero paid APIs permitted",
+                "provenance": "Finance Director",
+                "created_at": "2026-11-10T08:00:00Z"
+            }
+        """.trimIndent()
+        val mem = json.decodeFromString<KnowledgeItem>(memoryJson)
+        assertEquals("mem-001", mem.id)
+        assertEquals("finance", mem.category)
+    }
+
+    @Test
+    fun testCalendarAndDecisionSerialization() {
+        val calJson = """
+            {
+                "id": "cad-001",
+                "title": "Daily Executive Briefing",
+                "schedule_time": "Every Day at 08:00 (Africa/Algiers)",
+                "description": "Nova Prime prepares briefing",
+                "status": "ACTIVE_RECURRING"
+            }
+        """.trimIndent()
+        val cal = json.decodeFromString<CalendarEventItem>(calJson)
+        assertEquals("cad-001", cal.id)
+        assertEquals("ACTIVE_RECURRING", cal.status)
+
+        val decJson = """
+            {
+                "id": 42,
+                "timestamp": "2026-11-10T09:00:00Z",
+                "decision": "Delegated competitive scan to Research"
+            }
+        """.trimIndent()
+        val dec = json.decodeFromString<CeoDecisionItem>(decJson)
+        assertEquals(42, dec.id)
+        assertEquals("Delegated competitive scan to Research", dec.decision)
+    }
 }
+

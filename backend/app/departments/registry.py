@@ -1,22 +1,45 @@
 """Department Directors registry and charter initialization."""
 
+from pathlib import Path
 from typing import Dict, List, Optional
 from app.agents.base import BaseAgent, HierarchyLevel
 from app.agents.runtime import runtime_manager
 
 
+def load_department_charter(department_id: str) -> Optional[str]:
+    """Load the official department charter markdown file from team/."""
+    candidates = [
+        Path(__file__).resolve().parents[3] / "team" / f"{department_id}.md",
+        Path("/root/ai-office/team") / f"{department_id}.md",
+        Path("team") / f"{department_id}.md",
+    ]
+    for p in candidates:
+        if p.is_file():
+            try:
+                return p.read_text(encoding="utf-8")
+            except Exception:
+                pass
+    return None
+
+
 class DepartmentDirector(BaseAgent):
-    """Persistent Department Director agent."""
+    """Persistent Department Director agent backed by official department charter."""
 
     def __init__(self, id: str, name: str, department_id: str, role: str, system_prompt: str):
+        charter = load_department_charter(department_id)
+        effective_prompt = system_prompt
+        if charter:
+            effective_prompt = f"{system_prompt}\n\n## Official Department Charter:\n{charter}"
+
         super().__init__(
             id=id,
             name=name,
             department_id=department_id,
             role=role,
             hierarchy_level=HierarchyLevel.DIRECTOR,
-            system_prompt=system_prompt,
+            system_prompt=effective_prompt,
         )
+        self.charter = charter
 
 
 DEPARTMENT_DIRECTORS = [

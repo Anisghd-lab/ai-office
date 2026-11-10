@@ -104,3 +104,40 @@ data class SocialAccountStatus(
     val permissions: List<String> = emptyList(),
     val capabilities: List<String> = emptyList()
 )
+
+@Serializable
+data class CeoDecisionItem(
+    val id: Int,
+    val timestamp: String,
+    val decision: String
+)
+
+@Serializable
+data class ReportItem(
+    val id: String,
+    @SerialName("report_type") val reportType: String,
+    @SerialName("department_id") val departmentId: String,
+    @SerialName("reporting_period") val reportingPeriod: String,
+    val content: String,
+    @SerialName("created_at") val createdAt: String
+)
+
+@Serializable
+data class KnowledgeItem(
+    val id: String,
+    val title: String,
+    val category: String,
+    val content: String,
+    val provenance: String = "system",
+    @SerialName("created_at") val createdAt: String = ""
+)
+
+@Serializable
+data class CalendarEventItem(
+    val id: String,
+    val title: String,
+    @SerialName("schedule_time") val scheduleTime: String,
+    val description: String,
+    val status: String
+)
+

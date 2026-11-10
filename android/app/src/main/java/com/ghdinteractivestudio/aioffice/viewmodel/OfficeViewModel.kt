@@ -6,8 +6,12 @@ import com.ghdinteractivestudio.aioffice.data.AICEOProfile
 import com.ghdinteractivestudio.aioffice.data.AgentItem
 import com.ghdinteractivestudio.aioffice.data.ApiClient
 import com.ghdinteractivestudio.aioffice.data.ApprovalItem
+import com.ghdinteractivestudio.aioffice.data.CalendarEventItem
+import com.ghdinteractivestudio.aioffice.data.CeoDecisionItem
 import com.ghdinteractivestudio.aioffice.data.DepartmentItem
+import com.ghdinteractivestudio.aioffice.data.KnowledgeItem
 import com.ghdinteractivestudio.aioffice.data.OfficeMetrics
+import com.ghdinteractivestudio.aioffice.data.ReportItem
 import com.ghdinteractivestudio.aioffice.data.SocialAccountStatus
 import com.ghdinteractivestudio.aioffice.data.SseClient
 import com.ghdinteractivestudio.aioffice.data.TaskItem
@@ -49,6 +53,18 @@ class OfficeViewModel(
     private val _ceoProfile = MutableStateFlow(AICEOProfile())
     val ceoProfile: StateFlow<AICEOProfile> = _ceoProfile.asStateFlow()
 
+    private val _decisions = MutableStateFlow<List<CeoDecisionItem>>(emptyList())
+    val decisions: StateFlow<List<CeoDecisionItem>> = _decisions.asStateFlow()
+
+    private val _reports = MutableStateFlow<List<ReportItem>>(emptyList())
+    val reports: StateFlow<List<ReportItem>> = _reports.asStateFlow()
+
+    private val _memory = MutableStateFlow<List<KnowledgeItem>>(emptyList())
+    val memory: StateFlow<List<KnowledgeItem>> = _memory.asStateFlow()
+
+    private val _calendar = MutableStateFlow<List<CalendarEventItem>>(emptyList())
+    val calendar: StateFlow<List<CalendarEventItem>> = _calendar.asStateFlow()
+
     private val _chatMessages = MutableStateFlow<List<ChatMessage>>(
         listOf(
             ChatMessage(
@@ -78,6 +94,10 @@ class OfficeViewModel(
                 _approvals.value = api.getApprovals("PENDING")
                 _socialAccounts.value = api.getSocialAccounts()
                 _ceoProfile.value = api.getCeoProfile()
+                _decisions.value = api.getDecisions()
+                _reports.value = api.getReports()
+                _memory.value = api.getMemory()
+                _calendar.value = api.getCalendar()
                 _connectionState.value = "CONNECTED"
             } catch (e: Exception) {
                 _connectionState.value = "OFFLINE"

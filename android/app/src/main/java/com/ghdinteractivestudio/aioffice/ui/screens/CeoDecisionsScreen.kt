@@ -15,7 +15,7 @@ import com.ghdinteractivestudio.aioffice.viewmodel.OfficeViewModel
 
 @Composable
 fun CeoDecisionsScreen(viewModel: OfficeViewModel) {
-    val ceoProfile by viewModel.ceoProfile.collectAsState()
+    val decisions by viewModel.decisions.collectAsState()
 
     Column(
         modifier = Modifier
@@ -36,49 +36,60 @@ fun CeoDecisionsScreen(viewModel: OfficeViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            val sampleDecisions = listOf(
-                "Delegated Q4 Competitive Analysis to Research Department (Dr. Aris Vance)",
-                "Directed Marketing to formulate 3 organic TikTok hooks for Glassmorphism 2.0 release",
-                "Reconciled conflicting task priorities in Operations to eliminate redundant research pipelines",
-                "Approved Technology's internal unit test suite expansion to 41 automated assertions",
-                "Scheduled Sunday Executive Board meeting for Africa/Algiers timezone consolidation",
-                "Allocated free-tier Groq and OpenRouter quotas to optimize response latency"
-            )
-
-            items(sampleDecisions) { decision ->
-                GlassCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    borderColor = NeonCyan.copy(alpha = 0.2f)
-                ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
+        if (decisions.isEmpty()) {
+            GlassCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(
+                        text = "No Autonomous Decisions Recorded",
+                        color = NeonCyan,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Nova Prime will log all internal delegation and conflict resolution determinations here.",
+                        color = TextSecondary,
+                        fontSize = 12.sp
+                    )
+                }
+            }
+        } else {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(decisions) { item ->
+                    GlassCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        borderColor = NeonCyan.copy(alpha = 0.2f)
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "AUTONOMOUS DECISION #${item.id}",
+                                    color = NeonEmerald,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = item.timestamp.take(19),
+                                    color = TextTertiary,
+                                    fontSize = 10.sp
+                                )
+                            }
                             Text(
-                                text = "AUTONOMOUS DECISION",
-                                color = NeonEmerald,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "EXECUTED",
-                                color = TextTertiary,
-                                fontSize = 10.sp
+                                text = item.decision,
+                                color = TextPrimary,
+                                fontSize = 13.sp,
+                                lineHeight = 18.sp
                             )
                         }
-                        Text(
-                            text = decision,
-                            color = TextPrimary,
-                            fontSize = 13.sp,
-                            lineHeight = 18.sp
-                        )
                     }
                 }
             }
         }
     }
 }
+

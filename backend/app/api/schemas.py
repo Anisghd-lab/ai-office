@@ -133,3 +133,36 @@ class AICEOProfileResponse(BaseModel):
     departments_supervised: int
     tokens_consumed: int
     executive_health: str = "OPTIMAL"
+
+
+class CeoDecisionResponse(BaseModel):
+    id: int
+    timestamp: str
+    decision: str
+
+
+class ReportResponse(BaseModel):
+    id: str
+    report_type: str
+    department_id: str
+    reporting_period: str
+    content: str
+    created_at: str
+
+
+class KnowledgeItemResponse(BaseModel):
+    id: str
+    title: str
+    category: str
+    content: str
+    provenance: str
+    created_at: str
+
+
+class CalendarEventResponse(BaseModel):
+    id: str
+    title: str
+    schedule_time: str
+    description: str
+    status: str
+

@@ -1,0 +1,26 @@
+{
+  "applicationId": "com.ghdinteractivestudio.aioffice",
+  "versionCode": 1,
+  "versionName": "1.0.0",
+  "minSdkVersion": 26,
+  "targetSdkVersion": 34,
+  "compileSdkVersion": 34,
+  "artifact": "app-debug.apk",
+  "artifactPath": "android/app/build/outputs/apk/debug/app-debug.apk",
+  "sizeBytes": 15908736,
+  "sha256": "ef5c5941f1cd4003f9d8ee1f0940a192418273485a1bd4aed3a5e70d8cbf10df",
+  "md5": "a54d166398b026ee36c6f1d9bf4f966a",
+  "signingSchemes": {
+    "v1JarSigning": true,
+    "v2ApkSigningBlock": true
+  },
+  "signingKey": "Android Debug Keystore (SHA-256: 62:25:FB:A3:35:E4:0C:6D:E6:0B:45:90:3F:89:D6:EC:92:43:BD:8F:D6:AC:E7:50:8F:0A:01:83:EE:64:B3:36)",
+  "buildToolchain": {
+    "java": "OpenJDK 21.0.12.1",
+    "kotlin": "2.0.0",
+    "gradle": "8.9",
+    "androidGradlePlugin": "8.5.1",
+    "aapt2": "34.0.0"
+  },
+  "builtAt": "2026-11-10T10:15:58Z"
+}

@@ -119,7 +119,7 @@ async def approve_request(
         """UPDATE approvals
            SET status = 'APPROVED',
                decision_comment = ?,
-               decided_by = 'CEO',
+               decided_by = 'OWNER',
                decided_at = CURRENT_TIMESTAMP
            WHERE id = ?;""",
         (req.comment, request_id),
@@ -127,7 +127,7 @@ async def approve_request(
 
     cursor.execute(
         "INSERT INTO audit_ledger (actor, department_id, action, status, payload_hash, details) VALUES (?, ?, ?, ?, ?, ?);",
-        ("CEO", record["department_id"], "APPROVAL_GRANTED", "APPROVED", record["payload_hash"], f"Approved {request_id}: {req.comment}"),
+        ("OWNER", record["department_id"], "APPROVAL_GRANTED", "APPROVED", record["payload_hash"], f"Approved {request_id}: {req.comment}"),
     )
 
     await event_bus.publish(
@@ -188,7 +188,7 @@ async def reject_request(
         """UPDATE approvals
            SET status = 'REJECTED',
                decision_comment = ?,
-               decided_by = 'CEO',
+               decided_by = 'OWNER',
                decided_at = CURRENT_TIMESTAMP
            WHERE id = ?;""",
         (req.comment, request_id),
@@ -196,7 +196,7 @@ async def reject_request(
 
     cursor.execute(
         "INSERT INTO audit_ledger (actor, department_id, action, status, payload_hash, details) VALUES (?, ?, ?, ?, ?, ?);",
-        ("CEO", record["department_id"], "APPROVAL_REJECTED", "REJECTED", record["payload_hash"], f"Rejected {request_id}: {req.comment}"),
+        ("OWNER", record["department_id"], "APPROVAL_REJECTED", "REJECTED", record["payload_hash"], f"Rejected {request_id}: {req.comment}"),
     )
 
     await event_bus.publish(

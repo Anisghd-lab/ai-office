@@ -25,8 +25,8 @@ with db_manager.session() as conn:
     MigrationManager().run_migrations(conn)
 "
 
-# Set default host and port
-HOST="${HOST:-0.0.0.0}"
+# Set default host and port (strict 127.0.0.1 loopback security default)
+HOST="${HOST:-127.0.0.1}"
 PORT="${PORT:-8000}"
 
 echo "Starting Uvicorn ASGI server on ${HOST}:${PORT}..."
