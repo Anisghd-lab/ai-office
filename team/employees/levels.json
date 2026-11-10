@@ -1,0 +1,64 @@
+{
+  "levels": [
+    {
+      "level": 1,
+      "title": "Beginner",
+      "xp_threshold": 0,
+      "permissions": "Execute simple assigned tasks. No autonomous delegation."
+    },
+    {
+      "level": 2,
+      "title": "Trainee",
+      "xp_threshold": 100,
+      "permissions": "Execute routine tasks using approved templates."
+    },
+    {
+      "level": 3,
+      "title": "Junior",
+      "xp_threshold": 250,
+      "permissions": "Suggest improvements and perform basic validation."
+    },
+    {
+      "level": 4,
+      "title": "Associate",
+      "xp_threshold": 450,
+      "permissions": "Complete standard workflows with internal supervision."
+    },
+    {
+      "level": 5,
+      "title": "Intermediate",
+      "xp_threshold": 700,
+      "permissions": "Manage recurring tasks within department policies."
+    },
+    {
+      "level": 6,
+      "title": "Advanced",
+      "xp_threshold": 1000,
+      "permissions": "Identify and correct routine failures."
+    },
+    {
+      "level": 7,
+      "title": "Senior",
+      "xp_threshold": 1400,
+      "permissions": "Coordinate related tasks and propose delegation."
+    },
+    {
+      "level": 8,
+      "title": "Expert",
+      "xp_threshold": 1900,
+      "permissions": "Mentor lower-level agents and optimize workflows."
+    },
+    {
+      "level": 9,
+      "title": "Specialist",
+      "xp_threshold": 2500,
+      "permissions": "Manage complex department missions with autonomous internal decisions."
+    },
+    {
+      "level": 10,
+      "title": "Professional",
+      "xp_threshold": 3200,
+      "permissions": "Act as a trusted specialist or department lead within explicitly authorized boundaries."
+    }
+  ]
+}

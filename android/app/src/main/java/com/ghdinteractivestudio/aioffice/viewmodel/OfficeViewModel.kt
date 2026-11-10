@@ -15,6 +15,12 @@ import com.ghdinteractivestudio.aioffice.data.ReportItem
 import com.ghdinteractivestudio.aioffice.data.SocialAccountStatus
 import com.ghdinteractivestudio.aioffice.data.SseClient
 import com.ghdinteractivestudio.aioffice.data.TaskItem
+import com.ghdinteractivestudio.aioffice.data.CompanyOverview
+import com.ghdinteractivestudio.aioffice.data.EmployeeItem
+import com.ghdinteractivestudio.aioffice.data.FlowKitStatus
+import com.ghdinteractivestudio.aioffice.data.ProjectItem
+import com.ghdinteractivestudio.aioffice.data.GoogleAccountItem
+import com.ghdinteractivestudio.aioffice.data.LibraryProposalItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -65,6 +71,28 @@ class OfficeViewModel(
     private val _calendar = MutableStateFlow<List<CalendarEventItem>>(emptyList())
     val calendar: StateFlow<List<CalendarEventItem>> = _calendar.asStateFlow()
 
+    // ─── Media Company State ──────────────────────────────────────
+    private val _companyOverview = MutableStateFlow(CompanyOverview())
+    val companyOverview: StateFlow<CompanyOverview> = _companyOverview.asStateFlow()
+
+    private val _employees = MutableStateFlow<List<EmployeeItem>>(emptyList())
+    val employees: StateFlow<List<EmployeeItem>> = _employees.asStateFlow()
+
+    private val _flowkitStatus = MutableStateFlow(FlowKitStatus())
+    val flowkitStatus: StateFlow<FlowKitStatus> = _flowkitStatus.asStateFlow()
+
+    private val _flowkitLogs = MutableStateFlow("")
+    val flowkitLogs: StateFlow<String> = _flowkitLogs.asStateFlow()
+
+    private val _companyProjects = MutableStateFlow<List<ProjectItem>>(emptyList())
+    val companyProjects: StateFlow<List<ProjectItem>> = _companyProjects.asStateFlow()
+
+    private val _googleAccounts = MutableStateFlow<List<GoogleAccountItem>>(emptyList())
+    val googleAccounts: StateFlow<List<GoogleAccountItem>> = _googleAccounts.asStateFlow()
+
+    private val _libraryProposals = MutableStateFlow<List<LibraryProposalItem>>(emptyList())
+    val libraryProposals: StateFlow<List<LibraryProposalItem>> = _libraryProposals.asStateFlow()
+
     private val _chatMessages = MutableStateFlow<List<ChatMessage>>(
         listOf(
             ChatMessage(
@@ -98,9 +126,38 @@ class OfficeViewModel(
                 _reports.value = api.getReports()
                 _memory.value = api.getMemory()
                 _calendar.value = api.getCalendar()
+                refreshMediaCompany()
                 _connectionState.value = "CONNECTED"
             } catch (e: Exception) {
                 _connectionState.value = "OFFLINE"
+            }
+        }
+    }
+
+    fun refreshMediaCompany() {
+        viewModelScope.launch {
+            try {
+                _companyOverview.value = api.getCompanyOverview()
+                _employees.value = api.getEmployees()
+                _flowkitStatus.value = api.getFlowKitStatus()
+                _flowkitLogs.value = api.getFlowKitLogs()
+                _companyProjects.value = api.getCompanyProjects()
+                _googleAccounts.value = api.getGoogleAccounts()
+                _libraryProposals.value = api.getLibraryProposals()
+            } catch (e: Exception) {
+                // Keep resilient defaults
+            }
+        }
+    }
+
+    fun controlFlowKitEngine(action: String) {
+        viewModelScope.launch {
+            try {
+                api.controlFlowKit(action)
+                _flowkitStatus.value = api.getFlowKitStatus()
+                _flowkitLogs.value = api.getFlowKitLogs()
+            } catch (e: Exception) {
+                // Keep resilient
             }
         }
     }
@@ -120,6 +177,10 @@ class OfficeViewModel(
                     }
                     "agent.started", "agent.paused", "agent.resumed" -> {
                         _agents.value = api.getAgents()
+                    }
+                    "employee.session_started", "employee.session_finished", "employee.xp_awarded",
+                    "production.job_updated", "library.proposal_created" -> {
+                        refreshMediaCompany()
                     }
                     "connected" -> _connectionState.value = "LIVE"
                 }

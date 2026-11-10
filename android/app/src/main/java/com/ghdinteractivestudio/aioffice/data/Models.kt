@@ -141,3 +141,93 @@ data class CalendarEventItem(
     val status: String
 )
 
+// ─── Autonomous AI Media Company Models ──────────────────────────
+
+@Serializable
+data class EmployeeItem(
+    val id: String,
+    val name: String,
+    val department: String,
+    val role: String,
+    val level: Int = 1,
+    val xp: Int = 0,
+    val status: String = "FREE",
+    @SerialName("current_task") val currentTask: String? = null,
+    @SerialName("current_project") val currentProject: String? = null,
+    @SerialName("last_activity") val lastActivity: String? = null,
+    @SerialName("session_id") val sessionId: String? = null,
+    @SerialName("current_blockers") val currentBlockers: List<String> = emptyList()
+)
+
+@Serializable
+data class WorkforceStats(
+    val total: Int = 0,
+    val working: Int = 0,
+    val free: Int = 0,
+    @SerialName("waiting_for_owner") val waitingForOwner: Int = 0,
+    val stuck: Int = 0,
+    val offline: Int = 0,
+    @SerialName("by_department") val byDepartment: Map<String, Int> = emptyMap()
+)
+
+@Serializable
+data class CompanyGovernance(
+    @SerialName("human_role") val humanRole: String = "OWNER_PRINCIPAL",
+    @SerialName("central_intelligence") val centralIntelligence: String = "AI Office (Nova Prime)"
+)
+
+@Serializable
+data class CompanyOverview(
+    @SerialName("company_name") val companyName: String = "AI Office Media Organization",
+    val governance: CompanyGovernance = CompanyGovernance(),
+    val workforce: WorkforceStats = WorkforceStats(),
+    @SerialName("projects_count") val projectsCount: Int = 0,
+    @SerialName("engine_state") val engineState: String = "UNKNOWN",
+    val employees: List<EmployeeItem> = emptyList()
+)
+
+@Serializable
+data class ProjectItem(
+    val id: String,
+    val title: String,
+    val topic: String,
+    val niche: String,
+    @SerialName("target_audience") val targetAudience: String,
+    val status: String,
+    @SerialName("opportunity_score") val opportunityScore: Double = 8.0,
+    @SerialName("confidence_pct") val confidencePct: Int = 85
+)
+
+@Serializable
+data class FlowKitStatus(
+    val state: String = "UNKNOWN",
+    val endpoint: String = "http://127.0.0.1:8100",
+    val port: Int = 8100,
+    @SerialName("websocket_port") val websocketPort: Int = 9222,
+    @SerialName("process_info") val processInfo: String? = null
+)
+
+@Serializable
+data class GoogleAccountItem(
+    val id: String,
+    @SerialName("account_email_masked") val accountEmailMasked: String,
+    @SerialName("auth_status") val authStatus: String,
+    @SerialName("available_quota") val availableQuota: String = "UNKNOWN",
+    @SerialName("current_usage") val currentUsage: String? = null,
+    @SerialName("is_available") val isAvailable: Int = 0
+)
+
+@Serializable
+data class LibraryProposalItem(
+    val id: String,
+    @SerialName("tool_name") val toolName: String,
+    @SerialName("repository_url") val repositoryUrl: String,
+    @SerialName("license_name") val licenseName: String,
+    @SerialName("arm64_compatible") val arm64Compatible: Int = 1,
+    @SerialName("proot_compatible") val prootCompatible: Int = 1,
+    val benefits: String = "",
+    val recommendation: String = "",
+    val status: String = "IN_NEEDS_YOU",
+    @SerialName("approval_id") val approvalId: String? = null
+)
+

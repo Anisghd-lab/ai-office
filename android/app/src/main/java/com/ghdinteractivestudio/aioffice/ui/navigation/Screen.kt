@@ -1,6 +1,9 @@
 package com.ghdinteractivestudio.aioffice.ui.navigation
 
 sealed class Screen(val route: String, val title: String) {
+    data object LiveOffice : Screen("live_office", "Live Office")
+    data object VideoEngine : Screen("video_engine", "Video Engine")
+    data object ProductionPipeline : Screen("production_pipeline", "Production")
     data object TalkToCeo : Screen("talk_to_ceo", "Talk to CEO")
     data object CeoOffice : Screen("ceo_office", "CEO Office")
     data object CeoDecisions : Screen("ceo_decisions", "CEO Decisions")
@@ -17,6 +20,9 @@ sealed class Screen(val route: String, val title: String) {
     companion object {
         val allScreens: List<Screen>
             get() = listOf(
+                LiveOffice,
+                VideoEngine,
+                ProductionPipeline,
                 TalkToCeo,
                 CeoOffice,
                 CeoDecisions,

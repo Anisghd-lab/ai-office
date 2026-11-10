@@ -67,6 +67,9 @@ fun MainScreen(viewModel: OfficeViewModel) {
                 .padding(paddingValues)
         ) {
             when (currentScreen) {
+                Screen.LiveOffice -> LiveOfficeBoardScreen(viewModel)
+                Screen.VideoEngine -> VideoEngineControlScreen(viewModel)
+                Screen.ProductionPipeline -> ProductionPipelineScreen(viewModel, onNavigateToApprovals = { currentScreen = Screen.PendingUserApprovals })
                 Screen.TalkToCeo -> TalkToCeoScreen(viewModel)
                 Screen.CeoOffice -> CeoOfficeScreen(viewModel)
                 Screen.CeoDecisions -> CeoDecisionsScreen(viewModel)
