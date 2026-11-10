@@ -25,6 +25,8 @@ def test_database_session():
         MigrationManager().run_migrations(conn)
 
     from app.company.employees import employee_service
+    from app.departments.registry import initialize_directors
+    initialize_directors()
     employee_service.sync_registry_to_db()
 
     yield test_db_path

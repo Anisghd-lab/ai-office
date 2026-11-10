@@ -10,6 +10,7 @@ from app.social.base import (
     SocialPlatform,
 )
 from app.social.facebook.client import FacebookClient
+from app.social.google.client import GoogleAccountClient, YouTubeClient
 from app.social.instagram.client import InstagramClient
 from app.social.tiktok.client import TikTokClient
 from app.social.token_vault import token_vault
@@ -20,6 +21,10 @@ class SocialPublisher:
 
     def __init__(self):
         self.clients: Dict[SocialPlatform, BaseSocialClient] = {
+            SocialPlatform.GOOGLE_1: GoogleAccountClient(SocialPlatform.GOOGLE_1),
+            SocialPlatform.GOOGLE_2: GoogleAccountClient(SocialPlatform.GOOGLE_2),
+            SocialPlatform.GOOGLE_3: GoogleAccountClient(SocialPlatform.GOOGLE_3),
+            SocialPlatform.YOUTUBE: YouTubeClient(),
             SocialPlatform.TIKTOK: TikTokClient(),
             SocialPlatform.FACEBOOK: FacebookClient(),
             SocialPlatform.INSTAGRAM: InstagramClient(),

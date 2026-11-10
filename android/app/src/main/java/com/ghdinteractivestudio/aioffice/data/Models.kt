@@ -99,10 +99,30 @@ data class AICEOProfile(
 data class SocialAccountStatus(
     val platform: String,
     val status: String,
+    @SerialName("operational_status") val operationalStatus: String = "DISCONNECTED",
     @SerialName("account_id") val accountId: String? = null,
     val username: String? = null,
     val permissions: List<String> = emptyList(),
-    val capabilities: List<String> = emptyList()
+    val scopes: List<String> = emptyList(),
+    val capabilities: List<String> = emptyList(),
+    @SerialName("app_intent_uri") val appIntentUri: String? = null,
+    @SerialName("token_expires_at") val tokenExpiresAt: String? = null,
+    @SerialName("last_sync") val lastSync: String? = null,
+    @SerialName("requires_business_verification") val requiresBusinessVerification: Boolean = false
+)
+
+@Serializable
+data class AuthUrlResp(
+    val platform: String,
+    @SerialName("auth_url") val authUrl: String,
+    @SerialName("app_intent_uri") val appIntentUri: String? = null,
+    val status: String = "INITIALIZED"
+)
+
+@Serializable
+data class AccountTestResp(
+    val platform: String,
+    @SerialName("operational_status") val operationalStatus: String = "API_OPERATIONAL"
 )
 
 @Serializable

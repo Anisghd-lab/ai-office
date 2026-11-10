@@ -8,9 +8,25 @@ from typing import Any, Dict, List, Optional
 
 
 class SocialPlatform(str, Enum):
+    GOOGLE_1 = "google-1"
+    GOOGLE_2 = "google-2"
+    GOOGLE_3 = "google-3"
+    YOUTUBE = "youtube"
     TIKTOK = "tiktok"
     FACEBOOK = "facebook"
     INSTAGRAM = "instagram"
+
+
+class OperationalStatus(str, Enum):
+    DISCONNECTED = "DISCONNECTED"
+    APP_OPENED = "APP_OPENED"
+    USER_AUTHENTICATED = "USER_AUTHENTICATED"
+    ACCOUNT_AUTHORIZED = "ACCOUNT_AUTHORIZED"
+    API_OPERATIONAL = "API_OPERATIONAL"
+    PUBLISHING_READY = "PUBLISHING_READY"
+    TOKEN_EXPIRED = "TOKEN_EXPIRED"
+    DEGRADED = "DEGRADED"
+    ERROR = "ERROR"
 
 
 class AccountStatus(str, Enum):
@@ -34,11 +50,16 @@ class AccountInfo:
     account_id: Optional[str] = None
     username: Optional[str] = None
     status: AccountStatus = AccountStatus.DISCONNECTED
+    operational_status: OperationalStatus = OperationalStatus.DISCONNECTED
     permissions: List[str] = field(default_factory=list)
+    scopes: List[str] = field(default_factory=list)
     token_expires_at: Optional[datetime] = None
     last_sync: Optional[datetime] = None
     capabilities: List[str] = field(default_factory=list)
     requires_business_verification: bool = False
+    last_test_result: Dict[str, Any] = field(default_factory=dict)
+    app_intent_uri: Optional[str] = None
+    auth_url: Optional[str] = None
 
 
 @dataclass

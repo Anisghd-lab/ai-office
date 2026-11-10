@@ -32,9 +32,24 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        intent?.data?.let { uri ->
+            if (uri.scheme == "aioffice") {
+                officeViewModel.handleOAuthDeepLink(uri)
+            }
+        }
         setContent {
             AIOfficeTheme {
                 MainScreen(viewModel = officeViewModel)
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        intent.data?.let { uri ->
+            if (uri.scheme == "aioffice") {
+                officeViewModel.handleOAuthDeepLink(uri)
             }
         }
     }

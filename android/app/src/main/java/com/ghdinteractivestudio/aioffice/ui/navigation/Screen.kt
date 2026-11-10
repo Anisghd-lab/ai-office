@@ -12,7 +12,7 @@ sealed class Screen(val route: String, val title: String) {
     data object AgentNetwork : Screen("agent_network", "Agent Network")
     data object TasksAndProgress : Screen("tasks_and_progress", "Tasks & Progress")
     data object PendingUserApprovals : Screen("pending_user_approvals", "Pending User Approvals")
-    data object SocialAccounts : Screen("social_accounts", "Social Accounts")
+    data object SocialAccounts : Screen("social_accounts", "Connected Accounts")
     data object ExecutiveReports : Screen("executive_reports", "Executive Reports")
     data object OfficeCalendar : Screen("office_calendar", "Office Calendar")
     data object OrganizationalMemory : Screen("organizational_memory", "Organizational Memory")

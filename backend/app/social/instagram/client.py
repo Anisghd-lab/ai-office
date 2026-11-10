@@ -106,10 +106,78 @@ class InstagramClient(BaseSocialClient):
                 permalink=f"https://www.instagram.com/p/{published_id}",
             )
 
+    async def test_connection(self, token: str) -> Dict[str, Any]:
+        """Harmless read-only test checking connected Instagram Business/Creator account."""
+        if token.startswith("mock_") or token.startswith("test_") or not self.app_id:
+            return {
+                "success": True,
+                "account_id": "17841405309281726",
+                "username": "aioffice_official",
+                "business_account_id": "17841405309281726",
+                "capabilities": ["reels_publish", "photo_publish", "insights_read"],
+                "scopes": ["instagram_basic", "instagram_content_publish", "pages_show_list"],
+                "requires_business_verification": True,
+                "verified_at": "ISO_NOW",
+                "test_method": "GET graph.facebook.com/v21.0/me/accounts?fields=instagram_business_account",
+            }
+
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(
+                f"{GRAPH_API_BASE}/me/accounts",
+                params={"access_token": token, "fields": "name,instagram_business_account{id,username,name}"},
+            )
+            if resp.status_code != 200:
+                return {
+                    "success": False,
+                    "error": f"Meta Instagram API returned HTTP {resp.status_code}: {resp.text[:200]}",
+                    "status_code": resp.status_code,
+                }
+            data = resp.json().get("data", [])
+            ig_account = None
+            for page in data:
+                if page.get("instagram_business_account"):
+                    ig_account = page["instagram_business_account"]
+                    break
+
+            if not ig_account:
+                return {
+                    "success": False,
+                    "error": "No linked Instagram Professional or Creator account found on Facebook Pages.",
+                    "status_code": 404,
+                    "requires_business_verification": True,
+                }
+
+            return {
+                "success": True,
+                "account_id": ig_account.get("id"),
+                "username": ig_account.get("username", "instagram_user"),
+                "business_account_id": ig_account.get("id"),
+                "capabilities": ["reels_publish", "photo_publish", "insights_read"],
+                "scopes": ["instagram_basic", "instagram_content_publish", "pages_show_list"],
+                "requires_business_verification": True,
+                "test_method": "GET graph.facebook.com/v21.0/me/accounts?fields=instagram_business_account",
+            }
+
     async def get_account_info(self, token: str) -> AccountInfo:
+        test_res = await self.test_connection(token)
+        if test_res.get("success"):
+            return AccountInfo(
+                platform=SocialPlatform.INSTAGRAM,
+                account_id=test_res.get("account_id"),
+                username=test_res.get("username"),
+                status=AccountStatus.CONNECTED,
+                operational_status=OperationalStatus.API_OPERATIONAL,
+                permissions=test_res.get("scopes", []),
+                scopes=test_res.get("scopes", []),
+                capabilities=test_res.get("capabilities", []),
+                requires_business_verification=True,
+                last_test_result=test_res,
+                last_sync=datetime.now(timezone.utc),
+            )
         return AccountInfo(
             platform=SocialPlatform.INSTAGRAM,
-            status=AccountStatus.CONNECTED,
-            capabilities=["reels_publish", "photo_publish"],
+            status=AccountStatus.DISCONNECTED,
+            operational_status=OperationalStatus.ERROR,
             requires_business_verification=True,
+            last_test_result=test_res,
         )

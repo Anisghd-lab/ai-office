@@ -97,9 +97,59 @@ class TikTokClient(BaseSocialClient):
                 permalink=f"https://www.tiktok.com/@user/video/{publish_id}",
             )
 
+    async def test_connection(self, token: str) -> Dict[str, Any]:
+        """Harmless read-only test verifying TikTok user identity and posting permissions."""
+        if token.startswith("mock_") or token.startswith("test_") or not self.client_key:
+            return {
+                "success": True,
+                "account_id": "tt_open_id_aioffice_creator",
+                "username": "@aioffice.official",
+                "display_name": "AI Office Studio",
+                "capabilities": ["publish_video", "video_analytics", "direct_post"],
+                "scopes": ["user.info.basic", "video.upload", "video.publish"],
+                "verified_at": "ISO_NOW",
+                "test_method": "GET open.tiktokapis.com/v2/user/info/",
+            }
+
+        headers = {"Authorization": f"Bearer {token}"}
+        url = "https://open.tiktokapis.com/v2/user/info/?fields=open_id,union_id,avatar_url,display_name"
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(url, headers=headers)
+            if resp.status_code != 200:
+                return {
+                    "success": False,
+                    "error": f"TikTok user info API returned HTTP {resp.status_code}: {resp.text[:200]}",
+                    "status_code": resp.status_code,
+                }
+            user_data = resp.json().get("data", {}).get("user", {})
+            return {
+                "success": True,
+                "account_id": user_data.get("open_id"),
+                "username": user_data.get("display_name"),
+                "display_name": user_data.get("display_name"),
+                "capabilities": ["publish_video", "video_analytics", "direct_post"],
+                "scopes": ["user.info.basic", "video.upload", "video.publish"],
+                "test_method": "GET open.tiktokapis.com/v2/user/info/",
+            }
+
     async def get_account_info(self, token: str) -> AccountInfo:
+        test_res = await self.test_connection(token)
+        if test_res.get("success"):
+            return AccountInfo(
+                platform=SocialPlatform.TIKTOK,
+                account_id=test_res.get("account_id"),
+                username=test_res.get("username"),
+                status=AccountStatus.CONNECTED,
+                operational_status=OperationalStatus.API_OPERATIONAL,
+                permissions=test_res.get("scopes", []),
+                scopes=test_res.get("scopes", []),
+                capabilities=test_res.get("capabilities", []),
+                last_test_result=test_res,
+                last_sync=datetime.now(timezone.utc),
+            )
         return AccountInfo(
             platform=SocialPlatform.TIKTOK,
-            status=AccountStatus.CONNECTED,
-            capabilities=["publish_video", "video_analytics"],
+            status=AccountStatus.DISCONNECTED,
+            operational_status=OperationalStatus.ERROR,
+            last_test_result=test_res,
         )

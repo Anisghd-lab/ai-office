@@ -131,6 +131,47 @@ class ApiClient(
         }
     }
 
+    suspend fun getPlatformAuthUrl(platform: String): AuthUrlResp = withContext(Dispatchers.IO) {
+        val req = requestBuilder("/social/$platform/auth-url").get().build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) throw IOException("Failed to get auth URL: HTTP ${resp.code}")
+            val body = resp.body?.string() ?: "{}"
+            json.decodeFromString<AuthUrlResp>(body)
+        }
+    }
+
+    suspend fun testPlatformConnection(platform: String): AccountTestResp = withContext(Dispatchers.IO) {
+        val emptyBody = "{}".toRequestBody(jsonMediaType)
+        val req = requestBuilder("/social/$platform/test").post(emptyBody).build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) throw IOException("Test connection failed: HTTP ${resp.code}")
+            val body = resp.body?.string() ?: "{}"
+            json.decodeFromString<AccountTestResp>(body)
+        }
+    }
+
+    suspend fun reauthorizePlatform(platform: String): AuthUrlResp = withContext(Dispatchers.IO) {
+        val emptyBody = "{}".toRequestBody(jsonMediaType)
+        val req = requestBuilder("/social/$platform/reauthorize").post(emptyBody).build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) throw IOException("Reauthorization failed: HTTP ${resp.code}")
+            val body = resp.body?.string() ?: "{}"
+            json.decodeFromString<AuthUrlResp>(body)
+        }
+    }
+
+    suspend fun disconnectPlatform(platform: String): Boolean = withContext(Dispatchers.IO) {
+        val emptyBody = "{}".toRequestBody(jsonMediaType)
+        val req = requestBuilder("/social/$platform/disconnect").post(emptyBody).build()
+        client.newCall(req).execute().use { resp -> resp.isSuccessful }
+    }
+
+    suspend fun simulateConnectPlatform(platform: String): Boolean = withContext(Dispatchers.IO) {
+        val emptyBody = "{}".toRequestBody(jsonMediaType)
+        val req = requestBuilder("/social/$platform/simulate-connect").post(emptyBody).build()
+        client.newCall(req).execute().use { resp -> resp.isSuccessful }
+    }
+
     suspend fun getDecisions(): List<CeoDecisionItem> = withContext(Dispatchers.IO) {
         val req = requestBuilder("/ceo/decisions").get().build()
         client.newCall(req).execute().use { resp ->

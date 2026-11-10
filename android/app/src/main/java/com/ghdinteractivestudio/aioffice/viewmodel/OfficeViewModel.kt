@@ -1,5 +1,8 @@
 package com.ghdinteractivestudio.aioffice.viewmodel
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ghdinteractivestudio.aioffice.data.AICEOProfile
@@ -245,6 +248,98 @@ class OfficeViewModel(
                 api.createTask(title, departmentId, priority, description)
                 _tasks.value = api.getTasks()
                 _metrics.value = api.getMetrics()
+            } catch (e: Exception) {
+                // handle error
+            }
+        }
+    }
+
+    fun connectPlatform(context: Context, platform: String) {
+        viewModelScope.launch {
+            try {
+                val authData = api.getPlatformAuthUrl(platform)
+                var launched = false
+                if (!authData.appIntentUri.isNullOrBlank()) {
+                    try {
+                        val intent = Intent.parseUri(authData.appIntentUri, Intent.URI_INTENT_SCHEME)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        if (intent.resolveActivity(context.packageManager) != null) {
+                            context.startActivity(intent)
+                            launched = true
+                        }
+                    } catch (e: Exception) {
+                        // fallback to browser
+                    }
+                }
+                if (!launched && authData.authUrl.isNotBlank()) {
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(authData.authUrl))
+                    browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(browserIntent)
+                }
+                _socialAccounts.value = api.getSocialAccounts()
+            } catch (e: Exception) {
+                // handle error
+            }
+        }
+    }
+
+    fun testPlatformConnection(platform: String) {
+        viewModelScope.launch {
+            try {
+                api.testPlatformConnection(platform)
+                _socialAccounts.value = api.getSocialAccounts()
+            } catch (e: Exception) {
+                _socialAccounts.value = api.getSocialAccounts()
+            }
+        }
+    }
+
+    fun reauthorizePlatform(context: Context, platform: String) {
+        viewModelScope.launch {
+            try {
+                val authData = api.reauthorizePlatform(platform)
+                if (authData.authUrl.isNotBlank()) {
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(authData.authUrl))
+                    browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(browserIntent)
+                }
+                _socialAccounts.value = api.getSocialAccounts()
+            } catch (e: Exception) {
+                // handle error
+            }
+        }
+    }
+
+    fun disconnectPlatform(platform: String) {
+        viewModelScope.launch {
+            try {
+                api.disconnectPlatform(platform)
+                _socialAccounts.value = api.getSocialAccounts()
+            } catch (e: Exception) {
+                // handle error
+            }
+        }
+    }
+
+    fun simulateConnectPlatform(platform: String) {
+        viewModelScope.launch {
+            try {
+                api.simulateConnectPlatform(platform)
+                _socialAccounts.value = api.getSocialAccounts()
+            } catch (e: Exception) {
+                // handle error
+            }
+        }
+    }
+
+    fun handleOAuthDeepLink(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                val platform = uri.getQueryParameter("platform")
+                if (!platform.isNullOrBlank()) {
+                    api.testPlatformConnection(platform)
+                }
+                _socialAccounts.value = api.getSocialAccounts()
             } catch (e: Exception) {
                 // handle error
             }

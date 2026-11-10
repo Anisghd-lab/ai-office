@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     )
 
     APP_NAME: str = "AI Office"
-    APP_VERSION: str = "1.0.0"
+    APP_VERSION: str = "1.2.0"
     APP_ENV: str = "development"
     APP_HOST: str = "127.0.0.1"
     APP_PORT: int = 8000
@@ -42,6 +42,14 @@ class Settings(BaseSettings):
     DATABASE_WAL_MODE: bool = True
 
     # Social Integrations
+    GOOGLE_CLIENT_ID: Optional[str] = None
+    GOOGLE_CLIENT_SECRET: Optional[str] = None
+    GOOGLE_REDIRECT_URI: str = "http://127.0.0.1:8000/api/v1/social/google/callback"
+
+    YOUTUBE_CLIENT_ID: Optional[str] = None
+    YOUTUBE_CLIENT_SECRET: Optional[str] = None
+    YOUTUBE_REDIRECT_URI: str = "http://127.0.0.1:8000/api/v1/social/youtube/callback"
+
     TIKTOK_CLIENT_KEY: Optional[str] = None
     TIKTOK_CLIENT_SECRET: Optional[str] = None
     TIKTOK_REDIRECT_URI: str = "http://127.0.0.1:8000/api/v1/social/tiktok/callback"

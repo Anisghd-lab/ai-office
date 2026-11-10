@@ -233,6 +233,53 @@ class OfficeModelsTest {
     }
 
     @Test
+    fun testConnectedAccountModelsSerialization() {
+        val rawJson = """
+            {
+                "platform": "youtube",
+                "status": "CONNECTED",
+                "operational_status": "API_OPERATIONAL",
+                "account_id": "UC_channel_123",
+                "username": "AI Office Studio",
+                "permissions": ["youtube.readonly", "youtube.upload"],
+                "scopes": ["openid", "email", "https://www.googleapis.com/auth/youtube.upload"],
+                "capabilities": ["channel_read", "video_upload", "shorts_publishing"],
+                "app_intent_uri": "vnd.youtube://",
+                "token_expires_at": "2026-11-12T00:00:00Z",
+                "last_sync": "2026-11-10T12:00:00Z",
+                "requires_business_verification": false
+            }
+        """.trimIndent()
+
+        val acc = json.decodeFromString<SocialAccountStatus>(rawJson)
+        assertEquals("youtube", acc.platform)
+        assertEquals("API_OPERATIONAL", acc.operationalStatus)
+        assertEquals("AI Office Studio", acc.username)
+        assertEquals(3, acc.capabilities.size)
+
+        val authRespJson = """
+            {
+                "platform": "youtube",
+                "auth_url": "https://accounts.google.com/o/oauth2/v2/auth?client_id=xyz",
+                "app_intent_uri": "vnd.youtube://",
+                "status": "INITIALIZED"
+            }
+        """.trimIndent()
+        val auth = json.decodeFromString<AuthUrlResp>(authRespJson)
+        assertEquals("youtube", auth.platform)
+        assertEquals("INITIALIZED", auth.status)
+
+        val testRespJson = """
+            {
+                "platform": "youtube",
+                "operational_status": "API_OPERATIONAL"
+            }
+        """.trimIndent()
+        val testResp = json.decodeFromString<AccountTestResp>(testRespJson)
+        assertEquals("API_OPERATIONAL", testResp.operationalStatus)
+    }
+
+    @Test
     fun testScreenNavigationItems() {
         val screens = Screen.allScreens
         assertTrue(screens.contains(Screen.LiveOffice))
@@ -240,6 +287,8 @@ class OfficeModelsTest {
         assertTrue(screens.contains(Screen.ProductionPipeline))
         assertTrue(screens.contains(Screen.TalkToCeo))
         assertTrue(screens.contains(Screen.PendingUserApprovals))
+        assertTrue(screens.contains(Screen.SocialAccounts))
+        assertEquals("Connected Accounts", Screen.SocialAccounts.title)
         assertEquals(15, screens.size)
     }
 }
