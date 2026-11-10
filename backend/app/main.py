@@ -18,6 +18,8 @@ from app.api.governance import router as governance_router
 from app.api.events import router as events_router
 from app.api.ceo import router as ceo_router
 from app.api.social import router as social_router
+from app.api.media_company import router as media_company_router
+from app.company.employees import employee_service
 
 
 @asynccontextmanager
@@ -34,6 +36,10 @@ async def lifespan(app: FastAPI):
     logger.info("Initializing free-tier AI Provider Registry...")
     provider_registry.initialize()
     logger.info(f"Provider registry active with {len(provider_registry.list_all())} discovered providers.")
+
+    # 3. Media Company Workforce Synchronization
+    logger.info("Synchronizing autonomous media company employee registry...")
+    employee_service.sync_registry_to_db()
 
     yield
 
@@ -76,6 +82,7 @@ app.include_router(governance_router, prefix="/api/v1")
 app.include_router(events_router, prefix="/api/v1")
 app.include_router(ceo_router, prefix="/api/v1")
 app.include_router(social_router, prefix="/api/v1")
+app.include_router(media_company_router, prefix="/api/v1")
 
 
 @app.get("/")

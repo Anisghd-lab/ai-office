@@ -54,7 +54,9 @@ backend/app/database/storage/*.db-shm
 
 # Logs & Audit Dumps
 *.log
+*.pid
 logs/
+flowkit/.venv/
 
 # Android & Gradle
 .gradle/

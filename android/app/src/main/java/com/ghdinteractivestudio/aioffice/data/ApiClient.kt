@@ -166,5 +166,82 @@ class ApiClient(
             json.decodeFromString<List<CalendarEventItem>>(body)
         }
     }
+
+    // ─── Autonomous AI Media Company API Methods ──────────────────
+
+    suspend fun getCompanyOverview(): CompanyOverview = withContext(Dispatchers.IO) {
+        val req = requestBuilder("/company/overview").get().build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) return@use CompanyOverview()
+            val body = resp.body?.string() ?: "{}"
+            json.decodeFromString<CompanyOverview>(body)
+        }
+    }
+
+    suspend fun getEmployees(): List<EmployeeItem> = withContext(Dispatchers.IO) {
+        val req = requestBuilder("/company/employees").get().build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) return@use emptyList()
+            val body = resp.body?.string() ?: "[]"
+            json.decodeFromString<List<EmployeeItem>>(body)
+        }
+    }
+
+    suspend fun getFlowKitStatus(): FlowKitStatus = withContext(Dispatchers.IO) {
+        val req = requestBuilder("/company/flowkit/status").get().build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) return@use FlowKitStatus(state = "OFFLINE")
+            val body = resp.body?.string() ?: "{}"
+            json.decodeFromString<FlowKitStatus>(body)
+        }
+    }
+
+    suspend fun controlFlowKit(action: String): Boolean = withContext(Dispatchers.IO) {
+        val req = requestBuilder("/company/flowkit/control/$action").post("{}".toRequestBody(jsonMediaType)).build()
+        client.newCall(req).execute().use { resp ->
+            resp.isSuccessful
+        }
+    }
+
+    suspend fun getFlowKitLogs(): String = withContext(Dispatchers.IO) {
+        val req = requestBuilder("/company/flowkit/logs").get().build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) return@use "No logs available or engine stopped."
+            val body = resp.body?.string() ?: "{}"
+            try {
+                val parsed = json.decodeFromString<Map<String, String>>(body)
+                parsed["logs"] ?: body
+            } catch (e: Exception) {
+                body
+            }
+        }
+    }
+
+    suspend fun getCompanyProjects(): List<ProjectItem> = withContext(Dispatchers.IO) {
+        val req = requestBuilder("/company/projects").get().build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) return@use emptyList()
+            val body = resp.body?.string() ?: "[]"
+            json.decodeFromString<List<ProjectItem>>(body)
+        }
+    }
+
+    suspend fun getGoogleAccounts(): List<GoogleAccountItem> = withContext(Dispatchers.IO) {
+        val req = requestBuilder("/company/accounts").get().build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) return@use emptyList()
+            val body = resp.body?.string() ?: "[]"
+            json.decodeFromString<List<GoogleAccountItem>>(body)
+        }
+    }
+
+    suspend fun getLibraryProposals(): List<LibraryProposalItem> = withContext(Dispatchers.IO) {
+        val req = requestBuilder("/company/library/proposals").get().build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) return@use emptyList()
+            val body = resp.body?.string() ?: "[]"
+            json.decodeFromString<List<LibraryProposalItem>>(body)
+        }
+    }
 }
 

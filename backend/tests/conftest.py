@@ -24,4 +24,7 @@ def test_database_session():
     with db_manager.session() as conn:
         MigrationManager().run_migrations(conn)
 
+    from app.company.employees import employee_service
+    employee_service.sync_registry_to_db()
+
     yield test_db_path
