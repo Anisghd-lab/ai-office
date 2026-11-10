@@ -160,7 +160,7 @@ fun NavigationBarGlass(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(Screen.allScreens) { screen ->
+            items(Screen.allScreens.filterNotNull()) { screen ->
                 val isSelected = screen == currentScreen
                 Box(
                     modifier = Modifier

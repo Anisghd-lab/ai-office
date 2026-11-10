@@ -7,9 +7,9 @@
   "compileSdkVersion": 34,
   "artifact": "app-debug.apk",
   "artifactPath": "android/app/build/outputs/apk/debug/app-debug.apk",
-  "sizeBytes": 15908736,
-  "sha256": "ef5c5941f1cd4003f9d8ee1f0940a192418273485a1bd4aed3a5e70d8cbf10df",
-  "md5": "a54d166398b026ee36c6f1d9bf4f966a",
+  "sizeBytes": 15919669,
+  "sha256": "deac31e1cec781117d5fcbc7c00bc52bd660f0059c94caba8a6069c548d89a8c",
+  "md5": "256b9ce9845f3767efb21a92f35ee0db",
   "signingSchemes": {
     "v1JarSigning": true,
     "v2ApkSigningBlock": true
@@ -22,5 +22,5 @@
     "androidGradlePlugin": "8.5.1",
     "aapt2": "34.0.0"
   },
-  "builtAt": "2026-11-10T10:15:58Z"
+  "builtAt": "2026-11-10T10:45:25Z"
 }

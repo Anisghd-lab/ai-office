@@ -68,6 +68,12 @@ class OfficeModelsTest {
         val screens = Screen.allScreens
         assertEquals(12, screens.size)
 
+        for (screen in screens) {
+            assertNotNull("Screen must not be null", screen)
+            assertTrue("Screen title must not be blank", screen.title.isNotBlank())
+            assertTrue("Screen route must not be blank", screen.route.isNotBlank())
+        }
+
         val routes = screens.map { it.route }.toSet()
         assertTrue(routes.contains("talk_to_ceo"))
         assertTrue(routes.contains("ceo_office"))

@@ -118,9 +118,9 @@ Tokens for social media integrations are encrypted at rest using AES-256-GCM via
 - **Min SDK**: `26` (Android 8.0 Oreo)
 - **Target SDK**: `34` (Android 14)
 - **Artifact**: `app-debug.apk`
-- **File Size**: `15,908,736 bytes` (15.17 MB)
-- **SHA-256**: `ef5c5941f1cd4003f9d8ee1f0940a192418273485a1bd4aed3a5e70d8cbf10df`
-- **MD5**: `a54d166398b026ee36c6f1d9bf4f966a`
+- **File Size**: `15,919,669 bytes` (15.18 MB)
+- **SHA-256**: `deac31e1cec781117d5fcbc7c00bc52bd660f0059c94caba8a6069c548d89a8c`
+- **MD5**: `256b9ce9845f3767efb21a92f35ee0db`
 - **Signing Schemes**: Scheme v1 (JAR signing) and Scheme v2 (APK Signing Block) both verified.
 
 ---
